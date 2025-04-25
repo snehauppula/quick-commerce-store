@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductGrid from '@/components/ProductGrid';
 import CategoryFilter from '@/components/CategoryFilter';
-import { products, Product, getProductsByCategory } from '@/lib/productData';
+import { products, Product } from '@/lib/productData';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,11 +12,12 @@ import { Label } from '@/components/ui/label';
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialCategory = searchParams.get('category');
+  const initialSearch = searchParams.get('search');
   
   const [selectedCategory, setSelectedCategory] = useState<string | null>(initialCategory);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [priceRange, setPriceRange] = useState([0, 2000]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(initialSearch || '');
   const [isLoading, setIsLoading] = useState(true);
 
   // Find min and max prices from all products
@@ -59,12 +60,16 @@ const Products = () => {
     
     setFilteredProducts(result);
     
-    // Update URL parameter for category
+    // Update URL parameters
+    const params: { [key: string]: string } = {};
     if (selectedCategory) {
-      setSearchParams({ category: selectedCategory });
-    } else {
-      setSearchParams({});
+      params.category = selectedCategory;
     }
+    if (searchTerm) {
+      params.search = searchTerm;
+    }
+    setSearchParams(params);
+    
   }, [selectedCategory, priceRange, searchTerm, setSearchParams]);
 
   const handleCategoryChange = (categoryId: string | null) => {
@@ -75,6 +80,7 @@ const Products = () => {
     setSelectedCategory(null);
     setPriceRange([minPrice, maxPrice]);
     setSearchTerm('');
+    setSearchParams({});
   };
   
   return (

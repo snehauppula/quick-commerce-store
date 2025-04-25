@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Search, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,17 @@ const Navbar = () => {
   const { getTotalItems } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
+      setIsSearchOpen(false);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-200">
@@ -35,14 +46,18 @@ const Navbar = () => {
 
         {/* Desktop Search & Cart */}
         <div className="hidden md:flex md:items-center md:space-x-4">
-          <div className="relative">
+          <form onSubmit={handleSearch} className="relative">
             <Input
               type="search"
               placeholder="Search products..."
               className="w-64"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-          </div>
+            <button type="submit" className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              <Search className="hover:text-blue-600 transition-colors" size={18} />
+            </button>
+          </form>
           <Link to="/cart">
             <Button variant="outline" className="relative p-2" aria-label="Cart">
               <ShoppingCart size={20} />
@@ -93,14 +108,18 @@ const Navbar = () => {
       {/* Mobile Search Bar */}
       {isSearchOpen && (
         <div className="p-2 bg-white border-b border-gray-200 md:hidden">
-          <div className="relative">
+          <form onSubmit={handleSearch} className="relative">
             <Input
               type="search"
               placeholder="Search products..."
               className="w-full"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-          </div>
+            <button type="submit" className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              <Search className="hover:text-blue-600 transition-colors" size={18} />
+            </button>
+          </form>
         </div>
       )}
 
